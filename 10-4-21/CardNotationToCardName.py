@@ -33,5 +33,3 @@ else:
         second = "Clubs"
 
 print("The Card Entered is:", first, second)
-
-
