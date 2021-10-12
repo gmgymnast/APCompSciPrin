@@ -8,9 +8,9 @@ elif sL == 2:
 elif sL == 1:
     tip = bill * .10
 
-print("-------------------")
+print("--------------------")
 print("Bill:", '${:,.2f}'.format(bill))
 print("Satisfaction Level:", sL)
-print("-------------------")
+print("--------------------")
 print("Tip:", '${:,.2f}'.format(tip))
-print("-------------------")
+print("--------------------")
