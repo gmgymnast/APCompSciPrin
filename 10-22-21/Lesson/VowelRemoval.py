@@ -5,9 +5,4 @@ inputStr = input("Enter a string: ")
 # The Character
 
 for ch in inputStr:
-    if ch in "aeiouAEIOU":
-        print("_", end = "")
-    else:
-        print(ch, end = "")
-
-print()
+    print("_", end = "") if ch in "aeiouAEIOU" else print(ch, end = "")
