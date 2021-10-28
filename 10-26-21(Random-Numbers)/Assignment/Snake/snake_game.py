@@ -189,7 +189,7 @@ class Menu:
 
 pygame.mixer.pre_init(44100, -16, 2, 512)   
 pygame.init()
-CURRENT_PATH = "c:/APCompSciPrin/10-26-21(Random-Numbers)/Assignment/Snake/"
+CURRENT_PATH = "c:/Code/APCompSciPrin/10-26-21(Random-Numbers)/Assignment/Snake/"
 cell_size, cell_number = 40, 20
 screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
 clock, framerate = pygame.time.Clock(), 480
