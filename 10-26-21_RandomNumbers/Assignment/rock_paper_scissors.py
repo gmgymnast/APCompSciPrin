@@ -1,6 +1,6 @@
 from random import *
 playerC, compC = input("Enter Your Choice: ").lower(), choice(["rock", "paper", "scissors"])
- 
+print("Comptuer Picked:", compC)
 if playerC == "rock": playerC = "a"
 if compC == "rock": compC = "a"
 
