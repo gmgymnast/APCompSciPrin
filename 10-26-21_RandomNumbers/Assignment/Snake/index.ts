@@ -1,3 +1,3 @@
 export * from './Font';
-export * from './Graphics';
+export * from './res';
 export * from './Sound';

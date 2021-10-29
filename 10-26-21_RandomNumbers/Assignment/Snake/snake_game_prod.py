@@ -6,7 +6,7 @@ game_mode = ""
 
 pygame.mixer.pre_init(44100, -16, 2, 512)   
 pygame.init()
-CURRENT_PATH = "c:/Code/APCompSciPrin/10-26-21_RandomNumbers/Assignment/Snake/"
+CURRENT_PATH = "c:/APCompSciPrin/10-26-21_RandomNumbers/Assignment/Snake/"
 cell_size, cell_number = 40, 20
 screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
 clock, framerate = pygame.time.Clock(), 480
@@ -197,9 +197,7 @@ class Menu:
                         pygame.draw.rect(screen, grass_color, grass_rect)
 
     def draw_welcome(self):
-        title_text = "Snake"
-        regular_mode_text = "Press 1 To Play Regular Mode"
-        no_wall_mode_text = "Press 2 To Play Wallless Mode"
+        title_text, regular_mode_text, no_wall_mode_text = "Snake", "Press a To Play Regular Mode", "Press b To Play Wallless Mode" 
 
         title_surface = menu_main_font.render(title_text, True, (56, 74, 12))
         regular_mode_surface = play_font.render(regular_mode_text, True, (56, 74, 12))
@@ -213,40 +211,30 @@ class Menu:
         screen.blit(regular_mode_surface, regular_mode_rect)
         screen.blit(no_wall_surface, no_wall_mode_rect)
 
-menu = Menu()
-main_game = Main()
+menu, main_game = Menu(), Main()
 
 while True:
-    # Event Handling
     for event in pygame.event.get():
-        if event.type == pygame.QUIT: exit()
+        if event.type == pygame.QUIT: 
+            pygame.quit()
+            sys.exit()
         if game_state == "Game":
             if event.type == SCREEN_UPDATE: main_game.update()
             if event.type == pygame.KEYDOWN: movement()
 
-    # Update Screen
     screen.fill((175, 215, 70))
 
     if game_state == "Menu":
         menu.draw_elements()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_KP1: 
-                game_mode = "Regular"
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a: game_mode = "Regular"
+                if event.key == pygame.K_b: game_mode = "NoWall"    
                 game_state = "Game"
-            if event.key == pygame.K_KP2:
-                game_mode = "NoWall"    
-                game_state = "Game"
-    
     if game_state == "Game": main_game.draw_elements()
 
     pygame.display.update()
-
-    # Clock
     clock.tick(framerate)
-
-    def exit():
-        pygame.quit()
-        sys.exit()
 
     def movement():
         if event.key == pygame.K_UP: 
