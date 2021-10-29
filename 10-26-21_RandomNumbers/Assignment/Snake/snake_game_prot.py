@@ -1,30 +1,48 @@
 import pygame, sys, random, os
 from pygame.math import Vector2
 
+pygame.mixer.pre_init(44100, -16, 2, 512)   
+pygame.init()
+CURRENT_PATH = "c:/Code/APCompSciPrin/10-26-21_RandomNumbers/Assignment/Snake/"
+cell_size, cell_number = 40, 20
+screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
+clock, framerate = pygame.time.Clock(), 480
+apple = pygame.image.load(os.path.join(CURRENT_PATH + 'res/apple.png')).convert_alpha()
+game_font = pygame.font.Font(CURRENT_PATH + 'font/PoetsenOne-Regular.ttf', 25)
+menu_main_font = pygame.font.Font(CURRENT_PATH + 'font/PoetsenOne-Regular.ttf', 75)
+play_font = pygame.font.Font(CURRENT_PATH + 'font/PoetsenOne-Regular.ttf', 30)
+SCREEN_UPDATE = pygame.USEREVENT
+pygame.time.set_timer(SCREEN_UPDATE, 150)
+
+class Manager:
+     def __init__(self): 
+        self.game_state = "Menu"
+        self.game_mode = ""
 class Snake:
     def __init__(self):
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(1, 0)
         self.new_block = False
+        self.manager = Manager()
 
-        self.head_up = pygame.image.load(CURRENT_PATH + 'Graphics/head_up.png').convert_alpha()
-        self.head_down = pygame.image.load(CURRENT_PATH + 'Graphics/head_down.png').convert_alpha()        
-        self.head_right = pygame.image.load(CURRENT_PATH + 'Graphics/head_right.png').convert_alpha()
-        self.head_left = pygame.image.load(CURRENT_PATH + 'Graphics/head_left.png').convert_alpha()
+        self.head_up = pygame.image.load(CURRENT_PATH + 'res/head_up.png').convert_alpha()
+        self.head_down = pygame.image.load(CURRENT_PATH + 'res/head_down.png').convert_alpha()        
+        self.head_right = pygame.image.load(CURRENT_PATH + 'res/head_right.png').convert_alpha()
+        self.head_left = pygame.image.load(CURRENT_PATH + 'res/head_left.png').convert_alpha()
 		
-        self.tail_up = pygame.image.load(CURRENT_PATH + 'Graphics/tail_up.png').convert_alpha()
-        self.tail_down = pygame.image.load(CURRENT_PATH + 'Graphics/tail_down.png').convert_alpha()
-        self.tail_right = pygame.image.load(CURRENT_PATH + 'Graphics/tail_right.png').convert_alpha()
-        self.tail_left = pygame.image.load(CURRENT_PATH + 'Graphics/tail_left.png').convert_alpha()
+        self.tail_up = pygame.image.load(CURRENT_PATH + 'res/tail_up.png').convert_alpha()
+        self.tail_down = pygame.image.load(CURRENT_PATH + 'res/tail_down.png').convert_alpha()
+        self.tail_right = pygame.image.load(CURRENT_PATH + 'res/tail_right.png').convert_alpha()
+        self.tail_left = pygame.image.load(CURRENT_PATH + 'res/tail_left.png').convert_alpha()
 
-        self.body_vertical = pygame.image.load(CURRENT_PATH + 'Graphics/body_vertical.png').convert_alpha()
-        self.body_horizontal = pygame.image.load(CURRENT_PATH + 'Graphics/body_horizontal.png').convert_alpha()
+        self.body_vertical = pygame.image.load(CURRENT_PATH + 'res/body_vertical.png').convert_alpha()
+        self.body_horizontal = pygame.image.load(CURRENT_PATH + 'res/body_horizontal.png').convert_alpha()
 
-        self.body_tr = pygame.image.load(CURRENT_PATH + 'Graphics/body_tr.png').convert_alpha()
-        self.body_tl = pygame.image.load(CURRENT_PATH + 'Graphics/body_tl.png').convert_alpha()
-        self.body_br = pygame.image.load(CURRENT_PATH + 'Graphics/body_br.png').convert_alpha()
-        self.body_bl = pygame.image.load(CURRENT_PATH + 'Graphics/body_bl.png').convert_alpha()
-        self.crunch_sound = pygame.mixer.Sound(CURRENT_PATH + 'Sound/crunch.wav')
+        self.body_tr = pygame.image.load(CURRENT_PATH + 'res/body_tr.png').convert_alpha()
+        self.body_tl = pygame.image.load(CURRENT_PATH + 'res/body_tl.png').convert_alpha()
+        self.body_br = pygame.image.load(CURRENT_PATH + 'res/body_br.png').convert_alpha()
+        self.body_bl = pygame.image.load(CURRENT_PATH + 'res/body_bl.png').convert_alpha()
+        self.crunch_sound = pygame.mixer.Sound(CURRENT_PATH + 'sound/crunch.wav')
 
     def draw_snake(self):
         self.update_head_graphics()
@@ -36,7 +54,7 @@ class Snake:
             block_rect = pygame.Rect(x_pos, y_pos, cell_size, cell_size)
 
             if index == 0: screen.blit(self.head, block_rect)
-            elif index == len(self.body ) - 1: screen.blit(self.tail, block_rect)
+            elif index == len(self.body) - 1: screen.blit(self.tail, block_rect)
             else:
                 previous_block = self.body[index + 1] - block
                 next_block = self.body[index - 1] - block
@@ -69,13 +87,14 @@ class Snake:
             self.body = body_copy[:]
             self.new_block = False
         elif not 0 <= self.body[0].x < cell_number or not 0 <= self.body[0].y < cell_number: 
-            if game_mode == "NoWall":
+            if manager.game_mode == "NoWall":
                 body_copy = self.body[:-1]
                 body_copy.insert(0, body_copy[0] + self.direction * -cell_number)
                 self.body = body_copy[:]
-            elif game_mode == "Regular":
-                pygame.exit()
-                exit()
+            elif manager.game_mode == "Regular":
+                manager.game_state = "Menu"
+                manager.game_mode = ""
+
         else: 
             body_copy = self.body[:-1]
             body_copy.insert(0, body_copy[0] + self.direction)
@@ -104,6 +123,8 @@ class Main:
     def __init__(self):
         self.snake = Snake()
         self.fruit = Fruit()
+        text = str(len(self.snake.body) - 3)
+        
 
     def update(self):
         if event.type == SCREEN_UPDATE: self.snake.move_snake()
@@ -146,8 +167,8 @@ class Main:
                         pygame.draw.rect(screen, grass_color, grass_rect)
 
     def draw_score(self):
-        score_text = str(len(self.snake.body) - 3)
-        score_surface = game_font.render(score_text, True, (56, 74, 12))
+        self.text = str(len(self.snake.body) - 3)
+        score_surface = game_font.render(self.text, True, (56, 74, 12))
         score_x = int(cell_size * cell_number - 60)
         score_y = int(cell_size * cell_number - 40)
         score_rect = score_surface.get_rect(center = (score_x, score_y))
@@ -160,8 +181,11 @@ class Main:
         pygame.draw.rect(screen, (56, 74, 12), bg_rect, 2)
 
 class Menu:
+    def __init__(self): 
+        self.main = Main()
+
     def draw_elements(self):
-        self.draw_grass()
+        self.main.draw_grass()
         self.draw_welcome()
 
     def draw_grass(self):
@@ -180,9 +204,8 @@ class Menu:
                         pygame.draw.rect(screen, grass_color, grass_rect)
 
     def draw_welcome(self):
-        title_text = "Snake"
-        regular_mode_text = "Press 1 To Play Regular Mode"
-        no_wall_mode_text = "Press 2 To Play Wallless Mode"
+        title_text, regular_mode_text, no_wall_mode_text = "Snake", "Press 1 To Play Regular Mode", "Press 2 To Play Wallless Mode" 
+        high_score = self.main.score
 
         title_surface = menu_main_font.render(title_text, True, (56, 74, 12))
         regular_mode_surface = play_font.render(regular_mode_text, True, (56, 74, 12))
@@ -196,56 +219,53 @@ class Menu:
         screen.blit(regular_mode_surface, regular_mode_rect)
         screen.blit(no_wall_surface, no_wall_mode_rect)
 
-pygame.mixer.pre_init(44100, -16, 2, 512)   
-pygame.init()
-CURRENT_PATH = "c:/Code/APCompSciPrin/10-26-21_RandomNumbers/Assignment/Snake/"
-cell_size, cell_number = 40, 20
-screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
-clock, framerate = pygame.time.Clock(), 480
-apple = pygame.image.load(os.path.join(CURRENT_PATH + 'Graphics/apple.png')).convert_alpha()
-game_font = pygame.font.Font(CURRENT_PATH + 'Font/PoetsenOne-Regular.ttf', 25)
-menu_main_font = pygame.font.Font(CURRENT_PATH + 'Font/PoetsenOne-Regular.ttf', 75)
-play_font = pygame.font.Font(CURRENT_PATH + 'Font/PoetsenOne-Regular.ttf', 30)
-SCREEN_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(SCREEN_UPDATE, 150)
+class GameOver:
+    def __init__(self):
+        self.main = Main()
 
-game_state = "Menu"
-game_mode = ""
+    def draw_elements(self):
+        self.main.draw_grass()
+        self.draw_game_over()
 
-menu = Menu()
-main_game = Main()
+    def draw_game_over(self):
+        title_text, regular_mode_text, no_wall_mode_text = "Snake", "Press 1 To Play Regular Mode", "Press 2 To Play Wallless Mode" 
+
+        title_surface = menu_main_font.render(title_text, True, (56, 74, 12))
+        regular_mode_surface = play_font.render(regular_mode_text, True, (56, 74, 12))
+        no_wall_surface = play_font.render(no_wall_mode_text, True, (56, 74, 12))
+        
+        title_rect = title_surface.get_rect(center = ((400, 150)))
+        regular_mode_rect = regular_mode_surface.get_rect(center = ((400, 225)))
+        no_wall_mode_rect = no_wall_surface.get_rect(center = ((400, 275)))
+
+        screen.blit(title_surface, title_rect)
+        screen.blit(regular_mode_surface, regular_mode_rect)
+        screen.blit(no_wall_surface, no_wall_mode_rect)
+
+menu, main_game, manager = Menu(), Main(), Manager()
 
 while True:
-    # Event Handling
     for event in pygame.event.get():
-        if event.type == pygame.QUIT: exit()
-        if game_state == "Game":
+        if event.type == pygame.QUIT: 
+            pygame.quit()
+            sys.exit()
+        if manager.game_state == "Game":
             if event.type == SCREEN_UPDATE: main_game.update()
             if event.type == pygame.KEYDOWN: movement()
 
-    # Update Screen
     screen.fill((175, 215, 70))
 
-    if game_state == "Menu":
+    if manager.game_state == "Menu":
         menu.draw_elements()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_KP1: 
-                game_mode = "Regular"
-                game_state = "Game"
-            if event.key == pygame.K_KP2:
-                game_mode = "NoWall"    
-                game_state = "Game"
-    
-    if game_state == "Game": main_game.draw_elements()
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1: manager.game_mode = "Regular"
+                if event.key == pygame.K_2: manager.game_mode = "NoWall"    
+                manager.game_state = "Game"
+    if manager.game_state == "Game": main_game.draw_elements()
 
     pygame.display.update()
-
-    # Clock
     clock.tick(framerate)
-
-    def exit():
-        pygame.quit()
-        sys.exit()
 
     def movement():
         if event.key == pygame.K_UP: 
