@@ -1,30 +1,46 @@
 import pygame, sys, random, os
 from pygame.math import Vector2
 
+game_state = "Menu"
+game_mode = ""
+
+pygame.mixer.pre_init(44100, -16, 2, 512)   
+pygame.init()
+CURRENT_PATH = "c:/Code/APCompSciPrin/10-26-21_RandomNumbers/Assignment/Snake/"
+cell_size, cell_number = 40, 20
+screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
+clock, framerate = pygame.time.Clock(), 480
+apple = pygame.image.load(os.path.join(CURRENT_PATH + 'res/apple.png')).convert_alpha()
+game_font = pygame.font.Font(CURRENT_PATH + 'font/PoetsenOne-Regular.ttf', 25)
+menu_main_font = pygame.font.Font(CURRENT_PATH + 'font/PoetsenOne-Regular.ttf', 75)
+play_font = pygame.font.Font(CURRENT_PATH + 'font/PoetsenOne-Regular.ttf', 30)
+SCREEN_UPDATE = pygame.USEREVENT
+pygame.time.set_timer(SCREEN_UPDATE, 150)
+
 class Snake:
     def __init__(self):
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(1, 0)
         self.new_block = False
 
-        self.head_up = pygame.image.load(CURRENT_PATH + 'Graphics/head_up.png').convert_alpha()
-        self.head_down = pygame.image.load(CURRENT_PATH + 'Graphics/head_down.png').convert_alpha()        
-        self.head_right = pygame.image.load(CURRENT_PATH + 'Graphics/head_right.png').convert_alpha()
-        self.head_left = pygame.image.load(CURRENT_PATH + 'Graphics/head_left.png').convert_alpha()
+        self.head_up = pygame.image.load(CURRENT_PATH + 'res/head_up.png').convert_alpha()
+        self.head_down = pygame.image.load(CURRENT_PATH + 'res/head_down.png').convert_alpha()        
+        self.head_right = pygame.image.load(CURRENT_PATH + 'res/head_right.png').convert_alpha()
+        self.head_left = pygame.image.load(CURRENT_PATH + 'res/head_left.png').convert_alpha()
 		
-        self.tail_up = pygame.image.load(CURRENT_PATH + 'Graphics/tail_up.png').convert_alpha()
-        self.tail_down = pygame.image.load(CURRENT_PATH + 'Graphics/tail_down.png').convert_alpha()
-        self.tail_right = pygame.image.load(CURRENT_PATH + 'Graphics/tail_right.png').convert_alpha()
-        self.tail_left = pygame.image.load(CURRENT_PATH + 'Graphics/tail_left.png').convert_alpha()
+        self.tail_up = pygame.image.load(CURRENT_PATH + 'res/tail_up.png').convert_alpha()
+        self.tail_down = pygame.image.load(CURRENT_PATH + 'res/tail_down.png').convert_alpha()
+        self.tail_right = pygame.image.load(CURRENT_PATH + 'res/tail_right.png').convert_alpha()
+        self.tail_left = pygame.image.load(CURRENT_PATH + 'res/tail_left.png').convert_alpha()
 
-        self.body_vertical = pygame.image.load(CURRENT_PATH + 'Graphics/body_vertical.png').convert_alpha()
-        self.body_horizontal = pygame.image.load(CURRENT_PATH + 'Graphics/body_horizontal.png').convert_alpha()
+        self.body_vertical = pygame.image.load(CURRENT_PATH + 'res/body_vertical.png').convert_alpha()
+        self.body_horizontal = pygame.image.load(CURRENT_PATH + 'res/body_horizontal.png').convert_alpha()
 
-        self.body_tr = pygame.image.load(CURRENT_PATH + 'Graphics/body_tr.png').convert_alpha()
-        self.body_tl = pygame.image.load(CURRENT_PATH + 'Graphics/body_tl.png').convert_alpha()
-        self.body_br = pygame.image.load(CURRENT_PATH + 'Graphics/body_br.png').convert_alpha()
-        self.body_bl = pygame.image.load(CURRENT_PATH + 'Graphics/body_bl.png').convert_alpha()
-        self.crunch_sound = pygame.mixer.Sound(CURRENT_PATH + 'Sound/crunch.wav')
+        self.body_tr = pygame.image.load(CURRENT_PATH + 'res/body_tr.png').convert_alpha()
+        self.body_tl = pygame.image.load(CURRENT_PATH + 'res/body_tl.png').convert_alpha()
+        self.body_br = pygame.image.load(CURRENT_PATH + 'res/body_br.png').convert_alpha()
+        self.body_bl = pygame.image.load(CURRENT_PATH + 'res/body_bl.png').convert_alpha()
+        self.crunch_sound = pygame.mixer.Sound(CURRENT_PATH + 'sound/crunch.wav')
 
     def draw_snake(self):
         self.update_head_graphics()
@@ -68,6 +84,15 @@ class Snake:
             body_copy.insert(0, body_copy[0] + self.direction)
             self.body = body_copy[:]
             self.new_block = False
+        elif not 0 <= self.body[0].x < cell_number or not 0 <= self.body[0].y < cell_number: 
+            if game_mode == "NoWall":
+                body_copy = self.body[:-1]
+                body_copy.insert(0, body_copy[0] + self.direction * -cell_number)
+                self.body = body_copy[:]
+            elif game_mode == "Regular":
+                pygame.exit()
+                exit()
+
         else: 
             body_copy = self.body[:-1]
             body_copy.insert(0, body_copy[0] + self.direction)
@@ -117,10 +142,7 @@ class Main:
         for block in self.snake.body[1:]:
             if block == self.fruit.pos: self.fruit.randomize()
  
-    def check_fail(self):
-        if not 0 <= self.snake.body[0].x < cell_number or not 0 <= self.snake.body[0].y < cell_number: 
-            exit()
-        
+    def check_fail(self):        
         for block in self.snake.body[1:]: 
             if block == self.snake.body[0]: 
                 exit()
@@ -176,31 +198,20 @@ class Menu:
 
     def draw_welcome(self):
         title_text = "Snake"
-        play_text = "Press Enter To Play"
+        regular_mode_text = "Press 1 To Play Regular Mode"
+        no_wall_mode_text = "Press 2 To Play Wallless Mode"
 
         title_surface = menu_main_font.render(title_text, True, (56, 74, 12))
-        play_surface = play_font.render(play_text, True, (56, 74, 12))
+        regular_mode_surface = play_font.render(regular_mode_text, True, (56, 74, 12))
+        no_wall_surface = play_font.render(no_wall_mode_text, True, (56, 74, 12))
         
         title_rect = title_surface.get_rect(center = ((400, 150)))
-        play_rect = play_surface.get_rect(center = ((400, 225)))
+        regular_mode_rect = regular_mode_surface.get_rect(center = ((400, 225)))
+        no_wall_mode_rect = no_wall_surface.get_rect(center = ((400, 275)))
 
-        screen.blit(play_surface, play_rect)
         screen.blit(title_surface, title_rect)
-
-pygame.mixer.pre_init(44100, -16, 2, 512)   
-pygame.init()
-CURRENT_PATH = "c:/Code/APCompSciPrin/10-26-21(Random-Numbers)/Assignment/Snake/"
-cell_size, cell_number = 40, 20
-screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
-clock, framerate = pygame.time.Clock(), 480
-apple = pygame.image.load(os.path.join(CURRENT_PATH + 'Graphics/apple.png')).convert_alpha()
-game_font = pygame.font.Font(CURRENT_PATH + 'Font/PoetsenOne-Regular.ttf', 25)
-menu_main_font = pygame.font.Font(CURRENT_PATH + 'Font/PoetsenOne-Regular.ttf', 75)
-play_font = pygame.font.Font(CURRENT_PATH + 'Font/PoetsenOne-Regular.ttf', 30)
-SCREEN_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(SCREEN_UPDATE, 150)
-
-game_state = "Menu"
+        screen.blit(regular_mode_surface, regular_mode_rect)
+        screen.blit(no_wall_surface, no_wall_mode_rect)
 
 menu = Menu()
 main_game = Main()
@@ -219,7 +230,12 @@ while True:
     if game_state == "Menu":
         menu.draw_elements()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN: game_state = "Game"
+            if event.key == pygame.K_KP1: 
+                game_mode = "Regular"
+                game_state = "Game"
+            if event.key == pygame.K_KP2:
+                game_mode = "NoWall"    
+                game_state = "Game"
     
     if game_state == "Game": main_game.draw_elements()
 
