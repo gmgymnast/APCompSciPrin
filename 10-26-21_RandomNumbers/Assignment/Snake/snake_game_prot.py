@@ -3,7 +3,7 @@ from pygame.math import Vector2
 
 pygame.mixer.pre_init(44100, -16, 2, 512)   
 pygame.init()
-CURRENT_PATH = "c:/Code/APCompSciPrin/10-26-21_RandomNumbers/Assignment/Snake/"
+CURRENT_PATH = "c:/APCompSciPrin/10-26-21_RandomNumbers/Assignment/Snake/"
 cell_size, cell_number = 40, 20
 screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
 clock, framerate = pygame.time.Clock(), 480
@@ -18,6 +18,7 @@ class Manager:
      def __init__(self): 
         self.game_state = "Menu"
         self.game_mode = ""
+        self.highscore = 0
 class Snake:
     def __init__(self):
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
@@ -92,7 +93,7 @@ class Snake:
                 body_copy.insert(0, body_copy[0] + self.direction * -cell_number)
                 self.body = body_copy[:]
             elif manager.game_mode == "Regular":
-                manager.game_state = "Menu"
+                manager.game_state = "GameOver"
                 manager.game_mode = ""
 
         else: 
@@ -123,9 +124,8 @@ class Main:
     def __init__(self):
         self.snake = Snake()
         self.fruit = Fruit()
-        text = str(len(self.snake.body) - 3)
+        self.score = 0
         
-
     def update(self):
         if event.type == SCREEN_UPDATE: self.snake.move_snake()
         self.check_collision()
@@ -149,7 +149,9 @@ class Main:
     def check_fail(self):        
         for block in self.snake.body[1:]: 
             if block == self.snake.body[0]: 
-                exit()
+                manager.game_state = "GameOver"
+                manager.game_mode = ""
+
 
     def draw_grass(self):
         grass_color = (167, 209, 61)
@@ -167,8 +169,8 @@ class Main:
                         pygame.draw.rect(screen, grass_color, grass_rect)
 
     def draw_score(self):
-        self.text = str(len(self.snake.body) - 3)
-        score_surface = game_font.render(self.text, True, (56, 74, 12))
+        self.score = str(len(self.snake.body) - 3)
+        score_surface = game_font.render(self.score, True, (56, 74, 12))
         score_x = int(cell_size * cell_number - 60)
         score_y = int(cell_size * cell_number - 40)
         score_rect = score_surface.get_rect(center = (score_x, score_y))
@@ -183,29 +185,14 @@ class Main:
 class Menu:
     def __init__(self): 
         self.main = Main()
+        self.manager = Manager()
 
     def draw_elements(self):
         self.main.draw_grass()
         self.draw_welcome()
 
-    def draw_grass(self):
-        grass_color = (167, 209, 61)
-
-        for row in range(cell_number):
-            if row % 2 == 0:
-                for col in range(cell_number):
-                    if col % 2 == 0:
-                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
-                        pygame.draw.rect(screen, grass_color, grass_rect)
-            else:
-                for col in range(cell_number):
-                    if col % 2 != 0:
-                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
-                        pygame.draw.rect(screen, grass_color, grass_rect)
-
     def draw_welcome(self):
         title_text, regular_mode_text, no_wall_mode_text = "Snake", "Press 1 To Play Regular Mode", "Press 2 To Play Wallless Mode" 
-        high_score = self.main.score
 
         title_surface = menu_main_font.render(title_text, True, (56, 74, 12))
         regular_mode_surface = play_font.render(regular_mode_text, True, (56, 74, 12))
@@ -222,47 +209,56 @@ class Menu:
 class GameOver:
     def __init__(self):
         self.main = Main()
+        self.manager = Manager()
+        if int(self.main.score) > int(self.manager.highscore): self.manager.highscore = self.main.score
 
     def draw_elements(self):
         self.main.draw_grass()
         self.draw_game_over()
 
     def draw_game_over(self):
-        title_text, regular_mode_text, no_wall_mode_text = "Snake", "Press 1 To Play Regular Mode", "Press 2 To Play Wallless Mode" 
+        title_text, regular_mode_text, no_wall_mode_text = "Game Over", "Press 1 To Play Regular Mode", "Press 2 To Play Wallless Mode" 
+        highscore_text = "High Score:", str(self.manager.highscore)
 
         title_surface = menu_main_font.render(title_text, True, (56, 74, 12))
         regular_mode_surface = play_font.render(regular_mode_text, True, (56, 74, 12))
         no_wall_surface = play_font.render(no_wall_mode_text, True, (56, 74, 12))
+        highscore_surface = play_font.render(str(highscore_text), True, (56, 74, 12))
         
         title_rect = title_surface.get_rect(center = ((400, 150)))
         regular_mode_rect = regular_mode_surface.get_rect(center = ((400, 225)))
         no_wall_mode_rect = no_wall_surface.get_rect(center = ((400, 275)))
+        highscore_rect = highscore_surface.get_rect(center = ((400, 350)))
 
         screen.blit(title_surface, title_rect)
         screen.blit(regular_mode_surface, regular_mode_rect)
         screen.blit(no_wall_surface, no_wall_mode_rect)
+        screen.blit(highscore_surface, highscore_rect)
 
-menu, main_game, manager = Menu(), Main(), Manager()
+menu, main_game, manager, game_over= Menu(), Main(), Manager(), GameOver()
 
 while True:
     for event in pygame.event.get():
+        if manager.game_state == "Game":
+                if event.type == SCREEN_UPDATE: main_game.update()
+                if event.type == pygame.KEYDOWN: movement()
+        if event.type == pygame.KEYDOWN:
+            if manager.game_state == "Menu" or manager.game_state == "GameOver":
+                if event.key == pygame.K_1: 
+                    manager.game_mode = "Regular"
+                    manager.game_state = "Game"
+                if event.key == pygame.K_2: 
+                    manager.game_mode = "NoWall"
+                    manager.game_state = "Game"    
         if event.type == pygame.QUIT: 
             pygame.quit()
-            sys.exit()
-        if manager.game_state == "Game":
-            if event.type == SCREEN_UPDATE: main_game.update()
-            if event.type == pygame.KEYDOWN: movement()
+            sys.exit() 
 
     screen.fill((175, 215, 70))
 
-    if manager.game_state == "Menu":
-        menu.draw_elements()
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1: manager.game_mode = "Regular"
-                if event.key == pygame.K_2: manager.game_mode = "NoWall"    
-                manager.game_state = "Game"
-    if manager.game_state == "Game": main_game.draw_elements()
+    if manager.game_state == "Menu": menu.draw_elements()
+    elif manager.game_state == "Game": main_game.draw_elements()
+    elif manager.game_state == "GameOver": game_over.draw_elements() 
 
     pygame.display.update()
     clock.tick(framerate)
