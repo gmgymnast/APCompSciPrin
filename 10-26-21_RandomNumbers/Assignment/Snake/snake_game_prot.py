@@ -25,6 +25,7 @@ class Snake:
         self.direction = Vector2(1, 0)
         self.new_block = False
         self.manager = Manager()
+        self.fruit = Fruit()
 
         self.head_up = pygame.image.load(CURRENT_PATH + 'res/head_up.png').convert_alpha()
         self.head_down = pygame.image.load(CURRENT_PATH + 'res/head_down.png').convert_alpha()        
@@ -93,9 +94,7 @@ class Snake:
                 body_copy.insert(0, body_copy[0] + self.direction * -cell_number)
                 self.body = body_copy[:]
             elif manager.game_mode == "Regular":
-                manager.game_state = "GameOver"
-                manager.game_mode = ""
-
+                self.death()
         else: 
             body_copy = self.body[:-1]
             body_copy.insert(0, body_copy[0] + self.direction)
@@ -107,6 +106,21 @@ class Snake:
     def play_cruch_sound(self):
         self.crunch_sound.play()
 
+    def death(self):
+        self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
+        self.direction = Vector2(1, 0)
+        self.new_block = False
+        manager.game_mode = ""
+        manager.game_state = "GameOver"
+
+    def check_collision(self):
+        print()
+ 
+    def check_fail(self):        
+        for block in self.body[1:]: 
+            if block == self.body[0]: 
+                self.death()
+    
 class Fruit:
     def __init__(self):
         self.randomize()
@@ -129,29 +143,20 @@ class Main:
     def update(self):
         if event.type == SCREEN_UPDATE: self.snake.move_snake()
         self.check_collision()
-        self.check_fail()
+        self.snake.check_fail()
+
+    def check_collision(self):
+        for block in self.snake.body[1:]:
+            if block == self.fruit.pos: 
+                self.fruit.randomize()
+                self.snake.add_block()
+                self.snake.play_cruch_sound()
 
     def draw_elements(self):
         self.draw_grass()
         self.fruit.draw_fruit()
         self.snake.draw_snake()
         self.draw_score()
-
-    def check_collision(self):
-        if self.fruit.pos == self.snake.body[0]: 
-            self.fruit.randomize()
-            self.snake.add_block()
-            self.snake.play_cruch_sound()
-
-        for block in self.snake.body[1:]:
-            if block == self.fruit.pos: self.fruit.randomize()
- 
-    def check_fail(self):        
-        for block in self.snake.body[1:]: 
-            if block == self.snake.body[0]: 
-                manager.game_state = "GameOver"
-                manager.game_mode = ""
-
 
     def draw_grass(self):
         grass_color = (167, 209, 61)
@@ -257,8 +262,10 @@ while True:
     screen.fill((175, 215, 70))
 
     if manager.game_state == "Menu": menu.draw_elements()
-    elif manager.game_state == "Game": main_game.draw_elements()
-    elif manager.game_state == "GameOver": game_over.draw_elements() 
+    elif manager.game_state == "Game": 
+        main_game.draw_elements()
+    elif manager.game_state == "GameOver": 
+        game_over.draw_elements() 
 
     pygame.display.update()
     clock.tick(framerate)
