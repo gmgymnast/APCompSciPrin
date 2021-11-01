@@ -3,7 +3,7 @@ from pygame.math import Vector2
 
 pygame.mixer.pre_init(44100, -16, 2, 512)   
 pygame.init()
-CURRENT_PATH = "c:/APCompSciPrin/10-26-21_RandomNumbers/Assignment/Snake/"
+CURRENT_PATH = "c:/Code/APCompSciPrin/10-26-21_RandomNumbers/Assignment/Snake/"
 cell_size, cell_number = 40, 20
 screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
 clock, framerate = pygame.time.Clock(), 480
@@ -107,6 +107,9 @@ class Snake:
         self.crunch_sound.play()
 
     def death(self):
+        if int(len(self.body) - 3) > int(self.manager.highscore): self.manager.highscore = len(self.body) - 3
+        with open('highscore.txt') as reader:
+            reader.write(str(self.manager.highscore))
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(1, 0)
         self.new_block = False
@@ -215,7 +218,6 @@ class GameOver:
     def __init__(self):
         self.main = Main()
         self.manager = Manager()
-        if int(self.main.score) > int(self.manager.highscore): self.manager.highscore = self.main.score
 
     def draw_elements(self):
         self.main.draw_grass()
