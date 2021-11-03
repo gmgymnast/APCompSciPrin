@@ -18,6 +18,7 @@ class Manager:
      def __init__(self): 
         self.game_state = "Menu"
         self.game_mode = ""
+        self.highscore = 0
 class Snake:
     def __init__(self):
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
@@ -106,14 +107,9 @@ class Snake:
         self.crunch_sound.play()
 
     def death(self):
-        f = open("10-26-21_RandomNumbers/Assignment/Snake/highscore.txt", "r")
-        highscore = f.read()
-        f.close()
-
-        if highscore < str(len(self.body) - 3):
-            f = open("10-26-21_RandomNumbers/Assignment/Snake/highscore.txt", "w")
-            f.write(str(len(self.body) - 3))
-            f.close()
+        if int(len(self.body) - 3) > int(self.manager.highscore): self.manager.highscore = len(self.body) - 3
+        with open('highscore.txt') as reader:
+            reader.write(str(self.manager.highscore))
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(1, 0)
         self.new_block = False
@@ -228,12 +224,8 @@ class GameOver:
         self.draw_game_over()
 
     def draw_game_over(self):
-        f = open("10-26-21_RandomNumbers/Assignment/Snake/highscore.txt", "r")
-        highscore = f.read()
-        f.close()
-        
         title_text, regular_mode_text, no_wall_mode_text = "Game Over", "Press 1 To Play Regular Mode", "Press 2 To Play Wallless Mode" 
-        highscore_text = "High Score:  " + highscore
+        highscore_text = "High Score:", str(self.manager.highscore)
 
         title_surface = menu_main_font.render(title_text, True, (56, 74, 12))
         regular_mode_surface = play_font.render(regular_mode_text, True, (56, 74, 12))
