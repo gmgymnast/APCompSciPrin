@@ -17,17 +17,27 @@ pygame.time.set_timer(SCREEN_UPDATE, 150)
 class Manager:
      def __init__(self): 
         self.game_state = "Menu"
+        self.numMar = random.randint(10, 100)
     
 class Marble:
     def __init__(self):
-        self.numMar = random.randint(10, 100)
+        self.manager = Manager()
+        self.num_rows = 10
+        self.num_columns = 10
+        self.marble_width = 70
+        self.marble_height = 56
+        self.mmx = 75
+        self.mmy = 65
 
     def draw_marble(self):
-        if self.numMar >= 10: 
-            for i in range(self.numMar // 10): 
-                for j in range(10):
-                    screen.blit(marble, (j * 75, i * 65, 70, 56))
-
+        for i in range((self.manager.numMar // self.num_rows) + 1): 
+            if i != (self.manager.numMar // self.num_rows):
+                for j in range(self.num_rows):
+                    screen.blit(marble, (((width / 2) + (j * self.mmx) - ((self.mmx * self.num_rows) / 2)), ((height / 2) + (i * self.mmy) - ((self.mmy * self.num_columns) / 2)), self.marble_width, self.marble_height))
+            else:
+                for j in range(self.manager.numMar % self.num_rows):
+                    screen.blit(marble, (((width / 2) + (j * self.mmx) - ((self.mmx * self.num_rows) / 2)), ((height / 2) + (i * self.mmy) - ((self.mmy * self.num_columns) / 2)), self.marble_width, self.marble_height))
+                    
 class Main:
     def __init__(self):
         self.marble = Marble()
@@ -45,10 +55,10 @@ class Main:
         screen.blit(self.table, table_rect)
 
     def draw_computer(self):
-        print()
+       self.test = 1
 
     def draw_player(self):
-        print()
+        self.test = 1
 
 class Menu:
     def __init__(self): 
