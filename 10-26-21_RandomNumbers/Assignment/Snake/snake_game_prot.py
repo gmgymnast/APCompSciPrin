@@ -107,20 +107,17 @@ class Snake:
         self.crunch_sound.play()
 
     def death(self):
+    
         if int(len(self.body) - 3) > int(self.manager.highscore): self.manager.highscore = len(self.body) - 3
-        with open('highscore.txt') as reader:
-            reader.write(str(self.manager.highscore))
+        with open('highscore.txt') as writer: reader.write(str(self.manager.highscore))
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(1, 0)
         self.new_block = False
         manager.game_mode = ""
         manager.game_state = "GameOver"
-
-    def check_collision(self):
-        print()
  
-    def check_fail(self):        
-        for block in self.body[1:]: 
+    def check_fail(self):
+        for block in self.body[1:]:
             if block == self.body[0]: 
                 self.death()
     
