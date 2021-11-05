@@ -1,4 +1,4 @@
-import pygame, sys, random, os
+import pygame, sys, random, os, math
 
 pygame.mixer.pre_init(44100, -16, 2, 512)   
 pygame.init()
@@ -21,6 +21,10 @@ class Manager:
         self.player_turn = 0  # 0 = player, 1 = computer
         self.player_score = 0
         self.computer_score = 0
+        self.mode = random.randint(0, 1)
+        self.computer_mode = "smart"
+        self.lose = "None"
+        # "dumb" if self.mode == 0 else "smart"
         self.title_text, self.number_marbles_text = "Enter the Number of Marbles you Want to Take: ", 0
 
 class Marble:
@@ -34,6 +38,11 @@ class Marble:
         self.mmy = 65
 
     def draw_marble(self, numMar):
+        title_text = "Marbles Left: " + str(numMar)
+        title_surface = play_font.render(title_text, True, (56, 74, 12))
+        title_rect = title_surface.get_rect(center = ((1280 / 2, 125)))
+        screen.blit(title_surface, title_rect)
+
         for i in range((numMar // self.num_rows) + 1): 
             if i != (numMar // self.num_rows):
                 for j in range(self.num_rows):
@@ -91,7 +100,7 @@ class Main:
 
         title_rect = title_surface.get_rect(center = ((1280 / 10, 300)))
         number_marbles_rect = number_marbles_surface.get_rect(center = ((1280 / 10, 350)))
-        number_marbles_taken_by_computer_rect = number_marbles_taken_by_computer_surface.get_rect(center = ((1280 / 2, 700)))
+        number_marbles_taken_by_computer_rect = number_marbles_taken_by_computer_surface.get_rect(center = ((1280 / 2, 830)))
 
         screen.blit(title_surface, title_rect)
         screen.blit(number_marbles_surface, number_marbles_rect)
@@ -99,13 +108,16 @@ class Main:
 
     def computer_move(self):
         if self.manager.player_turn == 1:
-            marbles_taken = random.randint(1, 10)
+            if self.manager.computer_mode == "dumb": marbles_taken = random.randint(1, self.manager.numMar / 2)
+            elif self.manager.computer_mode == "smart":
+                if self.manager.numMar < 2:  self.lose()
+                else: marbles_taken = self.manager.numMar - (2 ** int(math.log(self.manager.numMar, 2)) - 1)
             self.manager.numMar -= marbles_taken
             self.manager.computer_score += marbles_taken
             self.marbles_taken_by_computer = marbles_taken
             self.manager.number_marbles_text = 0
             self.manager.player_turn = 0
-
+                
     def player_move(self):
         if self.manager.player_turn == 0:
             title_surface = play_font.render(self.manager.title_text, True, (56, 74, 12))
@@ -122,9 +134,19 @@ class Main:
                     if pygame.key.name(event.key) in "123456789":
                         self.manager.number_marbles_text = (self.manager.number_marbles_text  * 10) + int(pygame.key.name(event.key))
                 if event.type == pygame.KEYDOWN and pygame.key.name(event.key) == "return":
-                    self.manager.numMar -= self.manager.number_marbles_text
-                    self.manager.player_score += self.manager.number_marbles_text
-                    self.manager.player_turn = 1
+                    if self.manager.number_marbles_text != 0:
+                        if self.manager.number_marbles_text == 1: self.lose()
+                        if self.manager.number_marbles_text >= self.manager.numMar / 2: self.manager.number_marbles_text = 0
+                        else:
+                            self.manager.numMar -= self.manager.number_marbles_text
+                            self.manager.player_score += self.manager.number_marbles_text
+                            if self.manager.numMar == 0: self.lose()
+                            else: self.manager.player_turn = 1
+
+    def lose(self):
+        self.manager.game_state = "Menu"
+        self.manager.lose = "Computer"
+        self.manager.player_turn == 2
 
 
 class Menu:
@@ -134,13 +156,18 @@ class Menu:
 
     def draw_elements(self):
         self.main.draw_table()
-        self.draw_welcome()
+        self.draw_menu()
 
-    def draw_welcome(self):
-        title_text, regular_mode_text = "Nim", "Press 1 To Play"
+    def draw_menu(self):
+        if self.manager.lose == "Player": title_text = "You Lose!"
+        elif self.manager.lose == "Computer": title_text = "You Win!"
+        elif self.manager.lose == "None": title_text = "Nim"
+        else: title_text = "Nim!"
+        
+        regular_mode_text = "Press 1 To Play"
 
         title_surface = menu_main_font.render(title_text, True, (56, 74, 12))
-        regular_mode_surface = play_font.render(regular_mode_text, True, (56, 74, 12))
+        regular_mode_surface = play_font.render(regular_mode_text, True, (56, 74, 12))  
 
         title_rect = title_surface.get_rect(center = ((1280 / 2, 300)))
         regular_mode_rect = regular_mode_surface.get_rect(center = ((1280 / 2, 500)))
@@ -148,33 +175,12 @@ class Menu:
         screen.blit(title_surface, title_rect)
         screen.blit(regular_mode_surface, regular_mode_rect)
 
-class GameOver:
-    def __init__(self):
-        self.main = Main()
-        self.manager = Manager()
-
-    def draw_elements(self):
-        self.main.draw_table()
-        self.draw_game_over()
-
-    def draw_game_over(self):
-        title_text, regular_mode_text = "Game Over", "Press 1 To Play"
-
-        title_surface = menu_main_font.render(title_text, True, (56, 74, 12))
-        regular_mode_surface = play_font.render(regular_mode_text, True, (56, 74, 12))
-
-        title_rect = title_surface.get_rect(center = ((1280 / 2, 300)))
-        regular_mode_rect = regular_mode_surface.get_rect(center = ((1280 / 2, 500)))
-
-        screen.blit(title_surface, title_rect)
-        screen.blit(regular_mode_surface, regular_mode_rect)
-
-menu, main_game, manager, game_over= Menu(), Main(), Manager(), GameOver()
+menu, main_game, manager = Menu(), Main(), Manager()
 
 while True:
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
-            if manager.game_state == "Menu" or manager.game_state == "GameOver":
+            if manager.game_state == "Menu":
                 if event.key == pygame.K_1: 
                     manager.game_state = "Game"            
         if event.type == pygame.QUIT: 
@@ -184,7 +190,7 @@ while True:
 
     if manager.game_state == "Menu": menu.draw_elements()
     elif manager.game_state == "Game": main_game.draw_elements()
-    elif manager.game_state == "GameOver": game_over.draw_elements() 
 
     pygame.display.update()
     clock.tick(framerate)
+    
