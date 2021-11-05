@@ -27,21 +27,20 @@ class Marble:
     def __init__(self):
         self.manager = Manager()
         self.num_rows = 10
-        self.num_columns = self.manager.numMar // self.num_rows
+        self.num_columns = 10
         self.marble_width = 70
         self.marble_height = 56
         self.mmx = 75
         self.mmy = 65
 
     def draw_marble(self, numMar):
-        print(numMar)
         for i in range((numMar // self.num_rows) + 1): 
             if i != (numMar // self.num_rows):
                 for j in range(self.num_rows):
-                    screen.blit(marble, (((width / 2) + (j * self.mmx) - ((self.mmx * self.num_rows) / 2)), ((height / 2) + (i * self.mmy) - ((self.mmy * self.num_columns) / 2)), self.marble_width, self.marble_height))
+                    screen.blit(marble, (((width / 2) + (j * self.mmx) - ((self.mmx * self.num_rows) / 2)), ((height / 1.8) + (i * self.mmy) - ((self.mmy * self.num_columns) / 2)), self.marble_width, self.marble_height))
             else:
                 for j in range(numMar % self.num_rows):
-                    screen.blit(marble, (((width / 2) + (j * self.mmx) - ((self.mmx * self.num_rows) / 2), ((height / 2) + (i * self.mmy) - ((self.mmy * self.num_columns) / 2)), self.marble_width, self.marble_height)))
+                    screen.blit(marble, (((width / 2) + (j * self.mmx) - ((self.mmx * self.num_rows) / 2)), ((height / 1.8) + (i * self.mmy) - ((self.mmy * self.num_columns) / 2)), self.marble_width, self.marble_height))
                     
 class Main:
     def __init__(self):
@@ -49,6 +48,7 @@ class Main:
         self.manager = Manager()
         self.table = pygame.image.load(os.path.join(CURRENT_PATH + 'res/table.jfif')).convert_alpha()
         self.key_pressed = 0
+        self.marbles_taken_by_computer = 0
 
     def draw_elements(self):
         self.draw_table()
@@ -63,6 +63,10 @@ class Main:
         screen.blit(self.table, table_rect)
 
     def draw_computer(self):
+        marble_small = pygame.image.load(os.path.join(CURRENT_PATH + 'res/marble_small.png')).convert_alpha()
+        marbles_small_rect = pygame.Rect((1280 / 1.125) - 60, 330, 46, 37)
+        screen.blit(marble_small, marbles_small_rect)
+
         title_text, number_marbles_text = "Computer", str(self.manager.computer_score)
 
         title_surface = play_font.render(title_text, True, (56, 74, 12))
@@ -75,22 +79,30 @@ class Main:
         screen.blit(number_marbles_surface, number_marbles_rect)
 
     def draw_player(self):
-        title_text, number_marbles_text = "Player", str(self.manager.player_score)
+        marble_small = pygame.image.load(os.path.join(CURRENT_PATH + 'res/marble_small.png')).convert_alpha()
+        marbles_small_rect = pygame.Rect((1280 / 10) - 60, 330, 46, 37)
+        screen.blit(marble_small, marbles_small_rect)
+
+        title_text, number_marbles_text, number_marbles_taken_by_computer_text = "Player", str(self.manager.player_score), "The Computer Just Took " + str(self.marbles_taken_by_computer) + " Marbles"
 
         title_surface = play_font.render(title_text, True, (56, 74, 12))
         number_marbles_surface = play_font.render(number_marbles_text, True, (56, 74, 12))
+        number_marbles_taken_by_computer_surface = play_font.render(number_marbles_taken_by_computer_text, True, (56, 74, 12))
 
         title_rect = title_surface.get_rect(center = ((1280 / 10, 300)))
         number_marbles_rect = number_marbles_surface.get_rect(center = ((1280 / 10, 350)))
+        number_marbles_taken_by_computer_rect = number_marbles_taken_by_computer_surface.get_rect(center = ((1280 / 2, 700)))
 
         screen.blit(title_surface, title_rect)
         screen.blit(number_marbles_surface, number_marbles_rect)
+        screen.blit(number_marbles_taken_by_computer_surface, number_marbles_taken_by_computer_rect)
 
     def computer_move(self):
         if self.manager.player_turn == 1:
-            # Computer Logic
-            self.manager.numMar -= int(random.randint(1, 10))
-            self.manager.computer_score += self.manager.number_marbles_text
+            marbles_taken = random.randint(1, 10)
+            self.manager.numMar -= marbles_taken
+            self.manager.computer_score += marbles_taken
+            self.marbles_taken_by_computer = marbles_taken
             self.manager.number_marbles_text = 0
             self.manager.player_turn = 0
 
@@ -113,6 +125,7 @@ class Main:
                     self.manager.numMar -= self.manager.number_marbles_text
                     self.manager.player_score += self.manager.number_marbles_text
                     self.manager.player_turn = 1
+
 
 class Menu:
     def __init__(self): 
