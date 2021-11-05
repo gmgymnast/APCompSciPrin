@@ -18,7 +18,7 @@ class Manager:
      def __init__(self): 
         self.game_state = "Menu"
         self.numMar = random.randint(10, 100)
-        self.player_turn = 0  # 0 = player, 1 = computer
+        self.player_turn = 2  # 0 = player, 1 = computer
         self.player_score = 0
         self.computer_score = 0
         self.mode = random.randint(0, 1)
@@ -144,10 +144,9 @@ class Main:
                             else: self.manager.player_turn = 1
 
     def lose(self):
+        self.manager.player_turn = 2
         self.manager.game_state = "Menu"
-        self.manager.lose = "Computer"
-        self.manager.player_turn == 2
-
+        print(self.manager.game_state)
 
 class Menu:
     def __init__(self): 
@@ -175,21 +174,32 @@ class Menu:
         screen.blit(title_surface, title_rect)
         screen.blit(regular_mode_surface, regular_mode_rect)
 
-menu, main_game, manager = Menu(), Main(), Manager()
+class StateChange():
+    def __init__(self):
+        self.manager = Manager()
+        self.menu = Menu()
+        self.main = Main()
+
+    def change_state(self):
+        if self.manager.player_turn == 2: self.menu.draw_elements()
+        if self.manager.game_state == "Game": self.main.draw_elements()
+
+    def event_handler(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if self.manager.game_state == "Menu":
+                    if event.key == pygame.K_1:
+                        self.manager.game_state = "Game"           
+            if event.type == pygame.QUIT: 
+                pygame.quit()
+                sys.exit() 
+                exit()
+
+manager, state = Manager(), StateChange()
 
 while True:
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if manager.game_state == "Menu":
-                if event.key == pygame.K_1: 
-                    manager.game_state = "Game"            
-        if event.type == pygame.QUIT: 
-            pygame.quit()
-            sys.exit() 
-            exit()
-
-    if manager.game_state == "Menu": menu.draw_elements()
-    elif manager.game_state == "Game": main_game.draw_elements()
+    state.event_handler()
+    state.change_state()
 
     pygame.display.update()
     clock.tick(framerate)
