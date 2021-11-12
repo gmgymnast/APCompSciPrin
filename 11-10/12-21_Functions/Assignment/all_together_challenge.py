@@ -11,6 +11,6 @@ def first(a): return "\n   First Digit: " + a[0]
 def last(a): return "\n   Last Digit: " + a[-1]
 def length(a): return "\n   Number of Digits: " + str(len(a))
 def mid(a): return "\n   Middle Digit(s): " + a[(len(a)-1)//2:(len(a)+2)//2]
-main(int(input("Prob 1 Data 1: ")), int(input("Prob 1 Data 2: ")), int(input("Prob 1 Data 3: ")), \
-    int(input ("Prob 2 Data 1: ")), int(input("Prob 2 Data 2: ")), int(input("Prob 2 Data 3: ")), \
-    input("Prob 3 Data 1: "), input("Prob 3 Data 2: "))
+main(int(input("Prob 1 Info 1: ")), int(input("Prob 1 Info 2: ")), int(input("Prob 1 Info 3: ")),\
+    int(input("Prob 2 Info 1: ")), int(input("Prob 2 Info 2: ")), int(input("Prob 2 Info 3: ")),\
+    input("Prob 3 Info 1: "), input("Prob 3 Info 2: "))
