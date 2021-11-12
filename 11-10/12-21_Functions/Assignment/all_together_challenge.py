@@ -1,4 +1,4 @@
-def main(a, b, c, d, e, f, g, h): print(prob1(a, b, c) + prob2(d, e, f) + prob3(g) + prob3(h))
+def main(a, b, c, d, e, f, g, h): print(prob1(a, b, c), prob2(d, e, f), prob3(g), prob3(h))
 def prob1(x, y, z): return "Problem 1: " + smallest(x, y, z) + average(x, y, z)
 def prob2(x, y, z): return "\nProblem 2: " + same(x, y, z) + different(x, y, z) + order(x, y, z)
 def prob3(a): return "\nProblem 3: " + first(a) + last(a) + length(a) + mid(a)
