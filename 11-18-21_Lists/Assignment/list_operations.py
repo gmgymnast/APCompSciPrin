@@ -1,10 +1,27 @@
-def main(l): return (f"A: {swap(l)}\nB: {shift(l)}\nC: {replace_even(l)}\n\
-    D: {remove_middle(l)}\nE: {extreme(l)}\nF: {order(l)}\nG: {duplicate(l)}")
-def swap(l): return 1
-def shift(l): return 1
-def replace_even(l): return 1
-def remove_middle(l): return 1
-def extreme(l): return 1
-def order(l): return 1
-def duplicate(l): return 1
-print(main([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]))
+def main(): 
+    print(f"A: {swap([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])}")
+    print(f"B: {shift([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])}")
+    print(f"C: {replace_even([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])}")
+    print(f"D: {remove_middle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])}")
+    print(f"E: {extreme([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])}")
+    print(f"F: {order([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])}")
+    print(f"G: {duplicate([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])}")
+def swap(a): 
+    a[0], a[-1] = a[-1], a[0]
+    return a
+def shift(a): 
+    for i in range(len(a) - 1): a[i], a[i+1] = a[i+1], a[i]
+    return a
+def replace_even(a):
+    for i, p in enumerate(a): 
+        if p % 2 == 0: a[i] = 0
+    return a
+def remove_middle(a):
+    if len(a) % 2 == 0: 
+        for i in range(2): a.pop(len(a)//2)
+    else: a.pop(len(a)//2)
+    return a
+def extreme(a): return f'Largest: {max(a)}, Smallest: {min(a)}'
+def order(a): return a == sorted(a)
+def duplicate(a): return len(a) != len(set(a))
+print(main())
