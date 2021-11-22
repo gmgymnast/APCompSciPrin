@@ -1,0 +1,2 @@
+def calc(n1, n2, a): return n1 + n2 if a == 1 else n1 + -n2 if a == 2 else n1 * n2 if a == 3 else n1 // n2 if a == 4 else "Invalid Input"
+print("Answer:", calc(int(input("Enter First: ")), int(input("Enter Second: ")), int(input("Enter Assignment: "))))
