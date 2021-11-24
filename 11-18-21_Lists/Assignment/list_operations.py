@@ -10,7 +10,7 @@ def swap(a):
     a[0], a[-1] = a[-1], a[0]
     return a
 def shift(a): 
-    for i in range(len(a) - 1): a[i], a[i+1] = a[i+1], a[i]
+    a.insert(0, a.pop())
     return a
 def replace_even(a):
     for i, p in enumerate(a): 
