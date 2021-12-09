@@ -1,0 +1,1 @@
+w = input("Enter Word: "); print(f"{w} is a palindrome") if w == w[::-1] else print(f"{w} is not a palindrome")

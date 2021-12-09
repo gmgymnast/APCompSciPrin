@@ -1,0 +1,2 @@
+size = int(input("Enter Size: ")) + 1
+[print(str(i * j) + (" " * (len(str(size * size)) - len(str(i*j)))), end=" \n") if j == size - 1 else print(str(i * j) + (" " * (len(str(size * size)) - len(str(i*j)))), end=" ") for i in range(1, size, 1) for j in range(1, size, 1)]
